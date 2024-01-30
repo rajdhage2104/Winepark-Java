@@ -60,6 +60,6 @@ class WineServiceImplTest {
     @Test
     void testDeleteWine() {
         wineRepository.deleteById(1);
-        assertThat(wineServiceImpl.getWineById(1)).isNotNull();
+        assertThat(wineServiceImpl.getWineById(1)).isNull();
     }
 }

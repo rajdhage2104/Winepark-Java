@@ -1,6 +1,8 @@
 pipeline{
     agent any
-    
+    tools {
+  maven 'Maven3'
+  }
     stages{
        stage ('pull'){
         steps {
@@ -10,7 +12,7 @@ pipeline{
      }
        stage ('build'){
         steps{
-            sh '/opt/maven/bin/mvn clean package'
+            sh 'mvn clean package'
             echo 'build successfull'
         }
        }

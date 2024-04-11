@@ -9,7 +9,7 @@ pipeline{
      }
        stage ('build'){
         steps{
-            sh 'mvn clean package'
+            sh '/usr/share/maven mvn clean package'
             echo 'build successfull'
         }
        }

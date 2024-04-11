@@ -12,7 +12,7 @@
 //      }
 //        stage ('build'){
 //         steps{
-          def mvnHome = tool name: 'Apache Maven 3.6.0', type: 'maven'
+//          def mvnHome = tool name: 'Apache Maven 3.6.0', type: 'maven'
 //             sh 'mvn clean package'
 //             echo 'build successfull'
 //         }

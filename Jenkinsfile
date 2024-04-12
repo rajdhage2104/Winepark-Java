@@ -12,7 +12,7 @@ pipeline {
           }
         stage('Build') {
           steps {
-            sh 'mvn clean package' 
+            sh '/usr/share/maven/mvn clean package' 
           }
         }
         stage ('test'){

@@ -1,6 +1,7 @@
 pipeline {
     agent any
      environment{
+        ecrRegistryUrl = credentials('ECR_REGISTRY_URL')
         registry = "891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo"
      }
        
@@ -26,10 +27,7 @@ pipeline {
         stage('Sonarqube Analysis') {
             steps{
                 withSonarQubeEnv('sonarqube') {
-                    sh 'mvn clean verify sonar:sonar \
-                    -Dsonar.projectKey=$projectkey \
-                    -Dsonar.host.url=$sonarurl \
-                    -Dsonar.login=$login'
+                    sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=$projectkey -Dsonar.host.url=$sonarurl -Dsonar.login=$login'
                 }
             }
         }
@@ -44,9 +42,9 @@ pipeline {
 
         stage('Uploading to ECR') {
             steps{
-                 sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377019205.dkr.ecr.us-east-1.amazonaws.com'
-                 sh 'docker tag 891377019205/jenkins-ecr-repo-0.0.1 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
-                 sh 'docker push 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest' 
+                 sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ECR_REGISTRY_URL'
+                 sh 'docker tag 891377019205/jenkins-ecr-repo-0.0.1 ECR_REGISTRY_URL:latest'
+                 sh 'docker push ECR_REGISTRY_URL:latest' 
             }
         }
 

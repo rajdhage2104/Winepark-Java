@@ -1,7 +1,8 @@
 pipeline {
     agent any
      environment{
-        registry = "891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo"
+         ecrRegistryUrl = credentials('ECR_REGISTRY_URL')
+         registry = "891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo"
      }
        
     tools {

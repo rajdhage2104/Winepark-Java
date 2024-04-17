@@ -37,7 +37,7 @@ pipeline {
         stage('Docker build'){
             steps{
                 script {
-                    dockerImage = docker.build registry
+                    sh 'docker build -t 891377019205/jenkins-ecr-repo-0.0.1 .'
                 }
             }
         }

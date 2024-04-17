@@ -1,5 +1,8 @@
 pipeline {
     agent any
+     environment{
+        registry = "891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo"
+     }
        
     tools {
         maven 'Maven3'
@@ -27,6 +30,14 @@ pipeline {
                     -Dsonar.projectKey=$projectkey \
                     -Dsonar.host.url=$sonarurl \
                     -Dsonar.login=$login'
+                }
+            }
+        }
+
+        stage('Docker build'){
+            steps{
+                script {
+                    dockerImage = docker.build registry
                 }
             }
         }

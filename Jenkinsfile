@@ -1,7 +1,9 @@
 pipeline {
     agent any
      environment{
-        registry = "891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo"
+
+        ecrRegistryUrl = credentials('ECR_REGISTRY_URL')
+        
      }
        
     tools {
@@ -41,7 +43,7 @@ pipeline {
 
         stage('Trivy Image Scan'){
             steps{
-                sh 'trivy image 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+                sh "trivy image ${ecrRegistryUrl}:latest"
             }
         }
 
@@ -53,18 +55,17 @@ pipeline {
 
         stage('Uploading image to ECR'){
             steps{
-                sh 'docker push 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+                sh "docker push ${ecrRegistryUrl}:latest"
             }
         }
 
         stage('Deploy to EC2 with Docker'){
             steps{
                 sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377019205.dkr.ecr.us-east-1.amazonaws.com'
-                sh 'docker pull 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+                sh "docker pull ${ecrRegistryUrl}:latest"
                 sh 'docker run -d -p 5000:5000 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
             }
         }
 
     }
 }
-

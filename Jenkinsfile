@@ -1,8 +1,8 @@
 pipeline {
     agent any
      environment{
-
-        ecrRegistryUrl = credentials('ECR_REGISTRY_URL')
+        // Define environment variables for AWS and ECR credentials
+        ecrRegistryUrl        = credentials('ECR_REGISTRY_URL')
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_REGION            = 'us-east-1'
@@ -10,26 +10,37 @@ pipeline {
      }
        
     tools {
+        // Define the tools required for the pipeline
         maven 'Maven3'
     }
 
     stages {
         stage('Build and Coverage') {
             steps {
+                // Checkout the source code from Git an
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/rajdhage2104/Winepark-Java.git']]])
-                sh 'mvn clean install'
+                
+                // Build the Maven project
+                sh 'mvn clean install' 
             }
+
             post {
                 success {
+                    // Publish JaCoCo coverage report
                     jacoco()
+
+                    // Publish JUnit test results
                     junit '**/target/surefire-reports/**/*.xml'
-                    archiveArtifacts 'target/*.jar'
+
+                    // Upload code-coverage report as an artifact
+                    archiveArtifacts 'target/*.jar'  
                 }
             }
         }
 
         stage('Sonarqube Analysis') {
             steps{
+                // Run SonarQube analysis
                 withSonarQubeEnv('sonarqube') {
                     sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=$projectkey -Dsonar.host.url=$sonarurl -Dsonar.login=$login'
                 }
@@ -38,7 +49,7 @@ pipeline {
 
         stage('AWS Configuration') {
             steps {
-                // Optional: Explicitly run aws configure with environment variables
+                // Configure AWS credentials
                 sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"
                 sh "aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}"
                 sh "aws configure set default.region ${AWS_REGION}"
@@ -52,7 +63,7 @@ pipeline {
                     def shortCommitSha = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
         
                     // Build the image with the commit SHA as the tag
-                    sh "docker build -t webapp:${shortCommitSha} ."  // Replace with your Dockerfile location
+                    sh "docker build -t webapp:${shortCommitSha} ."  
                 }
             }
         }
@@ -61,6 +72,7 @@ pipeline {
 
         stage('Login to ECR') {
             steps{
+                 // Log in to ECR
                  sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ecrRegistryUrl}"
             }
         }
@@ -80,13 +92,19 @@ pipeline {
             }
         }
 
-        stage('Deploy to EC2 with Docker'){
+        stage('Deploy to EC2 with Docker') {
             steps{
-                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377019205.dkr.ecr.us-east-1.amazonaws.com'
-                sh "docker pull ${ecrRegistryUrl}:latest"
-                sh 'docker run -d -p 5000:5000 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+                // Log in to ECR
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ecrRegistryUrl}"
+                
+                // Pull the Docker image from ECR
+                sh "docker pull ${ecrRegistryUrl}:${shortCommitSha}" 
+                
+                // Run the Docker container on EC2
+                sh "docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}" 
             }
-        }
+        }   
 
     }
-}
+
+ }

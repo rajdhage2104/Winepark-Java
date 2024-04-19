@@ -28,7 +28,7 @@ pipeline {
                 withSonarQubeEnv('sonarqube') {
                     sh 'mvn clean verify sonar:sonar \
                     -Dsonar.projectKey=Java-app \
-                    -Dsonar.host.url=http://54.209.83.194:9000 \
+                    -Dsonar.host.url=http://54.204.68.13:9000 \
                     -Dsonar.login=sqp_f1a4dc4b0fd8c58a5b46f89bfbe5630d6373bb9c'
                 }
             }

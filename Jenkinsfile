@@ -39,6 +39,12 @@ pipeline {
             }
         }
 
+        stage('Trivy Image Scan'){
+            steps{
+                sh 'trivy image 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+            }
+        }
+
         stage('Login to ECR') {
             steps{
                  sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377019205.dkr.ecr.us-east-1.amazonaws.com'
@@ -51,11 +57,14 @@ pipeline {
             }
         }
 
-        stage('Trivy Image Scan'){
+        stage('Deploy to EC2 with Docker'){
             steps{
-                sh 'trivy image 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
-            }    
-
+                sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 891377019205.dkr.ecr.us-east-1.amazonaws.com'
+                sh 'docker pull 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+                sh 'docker run -d -p 5000:5000 891377019205.dkr.ecr.us-east-1.amazonaws.com/jenkins-ecr-repo:latest'
+            }
         }
+
     }
 }
+

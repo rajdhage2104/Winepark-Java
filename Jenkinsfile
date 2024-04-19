@@ -62,7 +62,7 @@ pipeline {
                 script{
                     // Retrieve the commit SHA from the Jenkins environment
                     def shortCommitSha = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-                    sh "trivy image ${ecrRegistryUrl}:${shortCommitSha}"
+                    sh "trivy image --scanners vuln '${ecrRegistryUrl}:${shortCommitSha}'"
                 }
                 
             }

@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql-db.cxwqs26saxti.us-east-1.rds.amazonaws.com:3306/wine
     username: root
-    password: y:9K$)UbrK5+)TB))%v}ErA6*5*1
+    password: zQ(bQ-g..tIDE66<FRMzxd3drBuL
   jpa:
     hibernate:
       ddl-auto: update

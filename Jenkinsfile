@@ -6,7 +6,8 @@ pipeline {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_REGION            = 'us-east-1'
-        
+        INSTANCE_PUBLIC_IP = credentials('INSTANCE_PUBLIC_IP')
+        SHORT_COMMIT_SHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
      }
        
     tools {
@@ -92,19 +93,30 @@ pipeline {
             }
         }
 
+        stage('AWS Configuration') {
+            steps {
+                // Configure AWS credentials
+                sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"
+                sh "aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}"
+                sh "aws configure set default.region ${AWS_REGION}"
+                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ecrRegistryUrl}"
+            }
+        }
+
+
+
         stage('Deploy to EC2 with Docker') {
             steps{
-                // Log in to ECR
-                sh "aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ecrRegistryUrl}"
-                
-                // Pull the Docker image from ECR
-                sh "docker pull ${ecrRegistryUrl}:${shortCommitSha}" 
-                
-                // Run the Docker container on EC2
-                sh "docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}" 
+               script {
+            // SSH into EC2 instance
+            sshCommand = "ssh -i ~/.ssh/id_rsa ubuntu@${INSTANCE_PUBLIC_IP} '"
+            sshCommand += "sudo docker pull ${ecrRegistryUrl}:${shortCommitSha};"
+            sshCommand += "sudo docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}'"
+            sh sshCommand
+                }
             }
         }   
 
     }
 
- }
+}

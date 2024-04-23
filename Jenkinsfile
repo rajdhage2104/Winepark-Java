@@ -108,9 +108,9 @@ pipeline {
         stage('Deploy to EC2 with Docker') {
             steps{
                script {
-                    
+                    shortCommitSha = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
                     // SSH into EC2 instance
-                    sshCommand = "ssh -i ~/.ssh/id_rsa ubuntu@${INSTANCE_PUBLIC_IP} '"
+                    sshCommand = "ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@${INSTANCE_PUBLIC_IP} '"
                     sshCommand += "sudo docker pull ${ecrRegistryUrl}:${shortCommitSha};"
                     sshCommand += "sudo docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}'"
                     sh sshCommand

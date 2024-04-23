@@ -7,7 +7,7 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_REGION            = 'us-east-1'
         INSTANCE_PUBLIC_IP = credentials('INSTANCE_PUBLIC_IP')
-        SHORT_COMMIT_SHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        shortCommitSha = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
      }
        
     tools {
@@ -22,7 +22,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/rajdhage2104/Winepark-Java.git']]])
                 
                 // Build the Maven project
-                sh 'mvn clean install' 
+                sh 'mvn clean package' 
             }
 
             post {
@@ -93,7 +93,7 @@ pipeline {
             }
         }
 
-        stage('AWS and ECR login') {
+        stage('AWS Configuration') {
             steps {
                 // Configure AWS credentials
                 sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"
@@ -108,11 +108,12 @@ pipeline {
         stage('Deploy to EC2 with Docker') {
             steps{
                script {
-            // SSH into EC2 instance
-            sshCommand = "ssh -i ~/.ssh/id_rsa ubuntu@${INSTANCE_PUBLIC_IP} '"
-            sshCommand += "sudo docker pull ${ecrRegistryUrl}:${shortCommitSha};"
-            sshCommand += "sudo docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}'"
-            sh sshCommand
+                    
+                    // SSH into EC2 instance
+                    sshCommand = "ssh -i ~/.ssh/id_rsa ubuntu@${INSTANCE_PUBLIC_IP} '"
+                    sshCommand += "sudo docker pull ${ecrRegistryUrl}:${shortCommitSha};"
+                    sshCommand += "sudo docker run -d -p 5000:5000 ${ecrRegistryUrl}:${shortCommitSha}'"
+                    sh sshCommand
                 }
             }
         }   

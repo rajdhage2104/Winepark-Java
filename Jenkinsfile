@@ -93,7 +93,7 @@ pipeline {
             }
         }
 
-        stage('AWS Configuration') {
+        stage('AWS and ECR login') {
             steps {
                 // Configure AWS credentials
                 sh "aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}"

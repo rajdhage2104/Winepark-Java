@@ -49,6 +49,17 @@ jobs:
           name: code-coverage-report
           path: target/site/jacoco
 
+
+    # Upload the Maven artifact to JFrog Artifactory
+      - name: Upload Artifact to JFrog Artifactory
+        env:
+          JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
+          JFROG_USER: ${{ secrets.JFROG_USER }}
+          JFROG_API_KEY: ${{ secrets.JFROG_API_KEY }}
+        run: |
+          curl -u $JFROG_USER:$JFROG_API_KEY -T target/*.jar "$JFROG_ARTIFACTORY_URL/$JFROG_REPO_NAME/$(date +%Y%m%d%H%M%S)/"
+    
+     
      # Build trust between GitHub and AWS using OIDC connector
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3

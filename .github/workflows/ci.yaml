@@ -1,0 +1,55 @@
+name: CI-CD workflow for Java code
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code from the repository
+      - name: 'Checkout code'
+        uses: 'actions/checkout@v2'
+
+      # Set up Java environment
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'  # Adjust version as needed
+
+      # Cache Maven dependencies
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven
+
+      # Install dependencies and run tests
+      - name: Build with Maven
+        run: |
+          mvn install -DskipTests
+          mvn test
+
+      # Generate code coverage report
+      - name: Generate code coverage report
+        run: |
+          mvn jacoco:report
+          
+      # Upload code coverage report as artifacts
+      - name: Archive code coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-report
+          path: target/site/jacoco
+
+      # Package the application
+      - name: Package application
+        run: mvn package

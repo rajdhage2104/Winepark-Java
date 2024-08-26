@@ -59,7 +59,7 @@ jobs:
         run: |
           jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
         env:
-          JFROG_ARTIFACTORY_URL: http://3.86.231.188:8082/artifactory
+          JFROG_ARTIFACTORY_URL: http://3.86.231.188:8082
           JFROG_USER: ${{ secrets.JFROG_USER }}
           JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
 

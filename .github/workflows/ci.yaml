@@ -57,16 +57,15 @@ jobs:
 
       - name: Configure JFrog CLI
         run: |
-          jfrog rt config --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD"
-  
+          jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
+        env:
+          JFROG_ARTIFACTORY_URL: http://3.86.231.188:8082/artifactory
+          JFROG_USER: ${{ secrets.JFROG_USER }}
+          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+
       - name: Upload Artifact to JFrog Artifactory
         run: |
           jfrog rt upload "target/*.jar" "github-repo/$(date +%Y%m%d%H%M%S)/"
-        env:
-          JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
-          JFROG_USER: ${{ secrets.JFROG_USER }}
-          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
-    
      
   #    # Build trust between GitHub and AWS using OIDC connector
   #     - name: configure aws credentials

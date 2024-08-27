@@ -119,3 +119,12 @@ jobs:
       - name: push docker imagee
         run: |
            docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
+
+ # Deploy to ECS
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: wine-java-task:1
+          service: java-service-2
+          cluster: DemoCluster
+          wait-for-service-stability: true

@@ -120,11 +120,20 @@ jobs:
         run: |
            docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
 
+
+ # Build trust between GitHub and AWS using OIDC connector
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+           role-to-assume: ${{ secrets.AWS_IAM_ARN }}
+           role-session-name: samplesession
+           aws-region: ${{ secrets.AWS_REGION }}
+
  # Deploy to ECS
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: java-winepark-1:2
+          task-definition: arn:aws:ecs:us-east-1:140023371117:task-definition/java-winepark-1:2
           service: serive-wine
           cluster: DevCluster
           wait-for-service-stability: true

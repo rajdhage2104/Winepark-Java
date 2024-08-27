@@ -124,7 +124,7 @@ jobs:
       - name: Deploy to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: wine-java-task:1
-          service: java-service-2
-          cluster: DemoCluster
+          task-definition: java-winepark-1:2
+          service: serive-wine
+          cluster: DevCluster
           wait-for-service-stability: true

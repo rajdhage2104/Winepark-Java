@@ -129,11 +129,11 @@ jobs:
            role-session-name: samplesession
            aws-region: ${{ secrets.AWS_REGION }}
 
- # Deploy to ECS
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          service: serive-wine
-          cluster: DevCluster
-          wait-for-service-stability: true
+ # # Deploy to ECS
+ #      - name: Deploy to ECS
+ #        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+ #        with:
+ #          task-definition: task-definition.json
+ #          service: serive-wine
+ #          cluster: DevCluster
+ #          wait-for-service-stability: true

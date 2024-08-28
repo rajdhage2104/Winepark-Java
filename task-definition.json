@@ -1,14 +1,13 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:140023371117:task-definition/java-winepark-1:2",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:140023371117:task-definition/WinePark-task:1",
     "containerDefinitions": [
         {
-            "name": "winepark-image",
-            "image": "140023371117.dkr.ecr.us-east-1.amazonaws.com/github-wine-repo:12212a782cc5e6946f97553b0bb7a5aaa5ab30ea",
-            "cpu": 1024,
-            "memory": 3072,
+            "name": "wineapp-container",
+            "image": "140023371117.dkr.ecr.us-east-1.amazonaws.com/github-wine-repo:7d1183c8ebdba39fdb12950a4a4c4af6c01f4760",
+            "cpu": 0,
             "portMappings": [
                 {
-                    "name": "winepark-image-80-tcp",
+                    "name": "wineapp-container-80-tcp",
                     "containerPort": 80,
                     "hostPort": 80,
                     "protocol": "tcp",
@@ -18,7 +17,8 @@
                     "name": "8082",
                     "containerPort": 8082,
                     "hostPort": 8082,
-                    "protocol": "tcp"
+                    "protocol": "tcp",
+                    "appProtocol": "http"
                 }
             ],
             "essential": true,
@@ -30,7 +30,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/java-winepark-1",
+                    "awslogs-group": "/ecs/WinePark-task",
                     "mode": "non-blocking",
                     "awslogs-create-group": "true",
                     "max-buffer-size": "25m",
@@ -42,10 +42,11 @@
             "systemControls": []
         }
     ],
-    "family": "java-winepark-1",
+    "family": "WinePark-task",
+    "taskRoleArn": "arn:aws:iam::140023371117:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::140023371117:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
-    "revision": 2,
+    "revision": 1,
     "volumes": [],
     "status": "ACTIVE",
     "requiresAttributes": [
@@ -63,6 +64,9 @@
         },
         {
             "name": "com.amazonaws.ecs.capability.docker-remote-api.1.28"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.task-iam-role"
         },
         {
             "name": "ecs.capability.execution-role-ecr-pull"
@@ -83,7 +87,7 @@
         "FARGATE"
     ],
     "requiresCompatibilities": [
-        "FARGATE"
+        "EC2"
     ],
     "cpu": "1024",
     "memory": "3072",
@@ -91,7 +95,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-08-27T08:40:15.675Z",
+    "registeredAt": "2024-08-28T11:10:29.818Z",
     "registeredBy": "arn:aws:iam::140023371117:root",
     "tags": []
 }

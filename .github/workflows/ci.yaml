@@ -136,7 +136,7 @@ jobs:
           IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}"
           jq --arg IMAGE_URI "$IMAGE_URI" '
           .containerDefinitions[0].image = $IMAGE_URI |
-          del(.status, .registeredAt, .registeredBy, .taskDefinitionArn, .revision, .requiresAttributes, .compatibilities, .cpu, .memory)
+          del(.status, .registeredAt, .registeredBy, .taskDefinitionArn, .revision, .requiresAttributes, .compatibilities)
           ' task-definition.json > new-task-definition.json
            mv new-task-definition.json task-definition.json
 

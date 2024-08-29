@@ -50,22 +50,22 @@ jobs:
           path: target/site/jacoco
 
 
-      # - name: Set up JFrog CLI
-      #   uses: jfrog/setup-jfrog-cli@v2
-      #   with:
-      #     version: 2.14.0  # Specify the version of JFrog CLI you want to use
+      - name: Set up JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v2
+        with:
+          version: 2.14.0  # Specify the version of JFrog CLI you want to use
 
-      # - name: Configure JFrog CLI
-      #   run: |
-      #     jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
-      #   env:
-      #     JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
-      #     JFROG_USER: ${{ secrets.JFROG_USER }}
-      #     JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+      - name: Configure JFrog CLI
+        run: |
+          jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
+        env:
+          JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
+          JFROG_USER: ${{ secrets.JFROG_USER }}
+          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
 
-      # - name: Upload Artifact to JFrog Artifactory
-      #   run: |
-      #     jfrog rt upload "target/*.jar" "${{ secrets.JFROG_REPO_NAME }}/$(date +%Y%m%d%H%M%S)/"
+      - name: Upload Artifact to JFrog Artifactory
+        run: |
+          jfrog rt upload "target/*.jar" "${{ secrets.JFROG_REPO_NAME }}/$(date +%Y%m%d%H%M%S)/"
      
      # Build trust between GitHub and AWS using OIDC connector
       - name: configure aws credentials
@@ -121,13 +121,23 @@ jobs:
            docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
 
 
+
+# CD job
+  deploy:
+      needs: CI  # This ensures that the deployment process only runs when the Docker image has been successfully built and pushed to Amazon ECR
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Repository
+          uses: actions/checkout@v2
+
+
  # Build trust between GitHub and AWS using OIDC connector
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-           role-to-assume: ${{ secrets.AWS_IAM_ARN }}
-           role-session-name: samplesession
-           aws-region: ${{ secrets.AWS_REGION }}
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v3
+          with:
+             role-to-assume: ${{ secrets.AWS_IAM_ARN }}
+             role-session-name: samplesession
+             aws-region: ${{ secrets.AWS_REGION }}
 
            
 # # Update the task definition with the new image URI
@@ -142,10 +152,10 @@ jobs:
 
 
  # Deploy to ECS
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          service: service-winepark
-          cluster: Cluster-Winepark
-          wait-for-service-stability: true
+        - name: Deploy to ECS
+          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+          with:
+            task-definition: task-definition.json
+            service: service-winepark
+            cluster: Cluster-Winepark
+            wait-for-service-stability: true

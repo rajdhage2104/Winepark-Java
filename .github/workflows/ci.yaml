@@ -130,15 +130,15 @@ jobs:
            aws-region: ${{ secrets.AWS_REGION }}
 
            
-# Update the task definition with the new image URI
-      - name: Update ECS task definition with new image
-        run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}"
-          jq --arg IMAGE_URI "$IMAGE_URI" '
-          .containerDefinitions[0].image = $IMAGE_URI |
-          del(.status, .registeredAt, .registeredBy, .taskDefinitionArn, .revision, .requiresAttributes, .compatibilities)
-          ' task-definition.json > new-task-definition.json
-           mv new-task-definition.json task-definition.json
+# # Update the task definition with the new image URI
+#       - name: Update ECS task definition with new image
+#         run: |
+#           IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}"
+#           jq --arg IMAGE_URI "$IMAGE_URI" '
+#           .containerDefinitions[0].image = $IMAGE_URI |
+#           del(.status, .registeredAt, .registeredBy, .taskDefinitionArn, .revision, .requiresAttributes, .compatibilities)
+#           ' task-definition.json > new-task-definition.json
+#            mv new-task-definition.json task-definition.json
 
 
  # Deploy to ECS
@@ -146,6 +146,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: task-definition.json
-          service: WinePark-service
-          cluster: WinePark-Cluster
+          service: service-winepark
+          cluster: Cluster-Winepark
           wait-for-service-stability: true

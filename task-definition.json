@@ -1,13 +1,13 @@
 {
-    "taskDefinitionArn": "arn:aws:ecs:us-east-1:140023371117:task-definition/WinePark-task:1",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:140023371117:task-definition/task-Winepark:1",
     "containerDefinitions": [
         {
-            "name": "wineapp-container",
-            "image": "140023371117.dkr.ecr.us-east-1.amazonaws.com/github-wine-repo:7d1183c8ebdba39fdb12950a4a4c4af6c01f4760",
+            "name": "container-winepark",
+            "image": "140023371117.dkr.ecr.us-east-1.amazonaws.com/github-wine-repo:a9e687fdc4d39f395c080755038676500e7c3ef2",
             "cpu": 0,
             "portMappings": [
                 {
-                    "name": "wineapp-container-80-tcp",
+                    "name": "container-winepark-80-tcp",
                     "containerPort": 80,
                     "hostPort": 80,
                     "protocol": "tcp",
@@ -30,7 +30,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/WinePark-task",
+                    "awslogs-group": "/ecs/task-Winepark",
                     "mode": "non-blocking",
                     "awslogs-create-group": "true",
                     "max-buffer-size": "25m",
@@ -42,7 +42,7 @@
             "systemControls": []
         }
     ],
-    "family": "WinePark-task",
+    "family": "task-Winepark",
     "taskRoleArn": "arn:aws:iam::140023371117:role/ecsTaskExecutionRole",
     "executionRoleArn": "arn:aws:iam::140023371117:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
@@ -95,7 +95,7 @@
         "cpuArchitecture": "X86_64",
         "operatingSystemFamily": "LINUX"
     },
-    "registeredAt": "2024-08-28T11:10:29.818Z",
+    "registeredAt": "2024-08-29T06:31:38.295Z",
     "registeredBy": "arn:aws:iam::140023371117:root",
     "tags": []
 }

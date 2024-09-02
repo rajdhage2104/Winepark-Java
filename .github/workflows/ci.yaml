@@ -103,7 +103,7 @@ jobs:
          docker tag flaskapp:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
          
 
-    # Run Trivy vulnerability scanner on specified Docker image in the ECR repository
+    # Run Trivy vulnerability scanner on specified Docker image in the ECR repositoryy
       - name: Run Trivy vulnerability scanner
         id: trivy-scan
         uses: aquasecurity/trivy-action@master

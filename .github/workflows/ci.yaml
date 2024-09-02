@@ -146,13 +146,15 @@ jobs:
 
 
 
-  # Deploy to AWS Lambda using GitHub Action
+  # Deploy to AWS Lambda using appleboy/lambda-action
       - name: Deploy to AWS Lambda
-        uses: appleboy/lambda-action@master
+        uses: appleboy/lambda-action@v1
         with:
           function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-          zip_file: /home/runner/work/Winepark-Java/Winepark-Java/lambda-function.zip
+          zip_file: lambda/lambda-function.zip
           aws_region: ${{ secrets.AWS_REGION }}
+          handler: com.cybage.winepark.LambdaHandler::handleRequest
+          runtime: java11
 
            
 # # Update the task definition with the new image URI

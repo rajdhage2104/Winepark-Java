@@ -145,6 +145,14 @@ jobs:
         - name: Checkout Repository
           uses: actions/checkout@v2
 
+   # Verify the directory structure
+        - name: List workspace directory
+          run: ls -lah /github/workspace
+
+    # Set the working directory (optional but ensures you're in the right directory)
+        - name: Set working directory
+          run: cd /github/workspace
+
 
  # Build trust between GitHub and AWS using OIDC connector
         - name: configure aws credentials

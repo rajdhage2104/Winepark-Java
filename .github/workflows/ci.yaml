@@ -145,15 +145,22 @@ jobs:
         - name: Checkout Repository
           uses: actions/checkout@v2
 
-   # Verify the directory structure
-        - name: List workspace directory
-          run: ls -lah /github/workspace
+   # Verify the current working directory
+        - name: Print working directory
+          run: pwd
 
-    # Set the working directory (optional but ensures you're in the right directory)
-        - name: Set working directory
-          run: cd /github/workspace
+    # List files in the current working directory
+        - name: List files in current directory
+          run: ls -lah
 
+    # Ensure we are in the correct directory
+        - name: Change to workspace directory (if needed)
+          run: cd /home/runner/work/Winepark-Java/Winepark-Java || exit 1
 
+    # Verify the lambda-function.zip file exists
+        - name: Verify ZIP file exists
+          run: ls -lah lambda-function.zip
+          
  # Build trust between GitHub and AWS using OIDC connector
         - name: configure aws credentials
           uses: aws-actions/configure-aws-credentials@v3

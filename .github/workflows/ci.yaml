@@ -55,12 +55,20 @@ jobs:
         run: |
           zip -r9 lambda-function.zip .
 
+    # **New step** List files in the directory to verify the ZIP file location
+      - name: List files in directory
+        run: ls -lah
+
+      # **New step** Display the current directory path
+      - name: Show current directory
+        run: pwd
 
 
-      - name: Set up JFrog CLI
-        uses: jfrog/setup-jfrog-cli@v2
-        with:
-          version: 2.14.0  # Specify the version of JFrog CLI you want to use
+
+      # - name: Set up JFrog CLI
+      #   uses: jfrog/setup-jfrog-cli@v2
+      #   with:
+      #     version: 2.14.0  # Specify the version of JFrog CLI you want to use
 
       # - name: Configure JFrog CLI
       #   run: |
@@ -74,87 +82,87 @@ jobs:
       #   run: |
       #     jfrog rt upload "target/*.jar" "${{ secrets.JFROG_REPO_NAME }}/$(date +%Y%m%d%H%M%S)/"
      
-     # Build trust between GitHub and AWS using OIDC connector
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-           role-to-assume: ${{ secrets.AWS_IAM_ARN }}
-           role-session-name: samplesession
-           aws-region: ${{ secrets.AWS_REGION }}
+#      # Build trust between GitHub and AWS using OIDC connector
+#       - name: configure aws credentials
+#         uses: aws-actions/configure-aws-credentials@v3
+#         with:
+#            role-to-assume: ${{ secrets.AWS_IAM_ARN }}
+#            role-session-name: samplesession
+#            aws-region: ${{ secrets.AWS_REGION }}
 
-     # Authenticate AWS with Docker to interact with an Amazon ECR registry
-      - name: Login to Amazon ECR
-        run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+#      # Authenticate AWS with Docker to interact with an Amazon ECR registry
+#       - name: Login to Amazon ECR
+#         run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
          
 
-    # Build the Docker image using Dockerfile & tag it with commit SHA, & push it to ECR repository
-      - name: Build Docker Image
-        run: |
-         docker build -t flaskapp:${{ github.sha }} .
-         docker tag flaskapp:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
+#     # Build the Docker image using Dockerfile & tag it with commit SHA, & push it to ECR repository
+#       - name: Build Docker Image
+#         run: |
+#          docker build -t flaskapp:${{ github.sha }} .
+#          docker tag flaskapp:${{ github.sha }} ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
          
 
-    # Run Trivy vulnerability scanner on specified Docker image in the ECR repository
-      - name: Run Trivy vulnerability scanner
-        id: trivy-scan
-        uses: aquasecurity/trivy-action@master
-        with:
-         image-ref: '${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}'
-         format: 'table'
-         exit-code: '1'
-         ignore-unfixed: true
-         vuln-type: 'os,library'
-         severity: 'CRITICAL,HIGH'
-        continue-on-error: true
+#     # Run Trivy vulnerability scanner on specified Docker image in the ECR repository
+#       - name: Run Trivy vulnerability scanner
+#         id: trivy-scan
+#         uses: aquasecurity/trivy-action@master
+#         with:
+#          image-ref: '${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}'
+#          format: 'table'
+#          exit-code: '1'
+#          ignore-unfixed: true
+#          vuln-type: 'os,library'
+#          severity: 'CRITICAL,HIGH'
+#         continue-on-error: true
 
         
-  # Display boolean value(true/false) depending on the scan report that is received from previous step
-      - name: Detected vulnerabilities
-        if: steps.trivy-scan.outcome == 'failure'
-        run: |
-         echo "Vulnerability scan failed!"
+#   # Display boolean value(true/false) depending on the scan report that is received from previous step
+#       - name: Detected vulnerabilities
+#         if: steps.trivy-scan.outcome == 'failure'
+#         run: |
+#          echo "Vulnerability scan failed!"
          
 
-  # Display boolean value(true/false) depending on the scan report that is received from previous step
-      - name: No vulnerabilities detectedd
-        if: steps.trivy-scan.outcome == 'success'
-        run: |
-         echo "Vulnerability scan succeeded!"
+#   # Display boolean value(true/false) depending on the scan report that is received from previous step
+#       - name: No vulnerabilities detectedd
+#         if: steps.trivy-scan.outcome == 'success'
+#         run: |
+#          echo "Vulnerability scan succeeded!"
 
-  # Push Docker image to Amazon ECR
-      - name: push docker imagee
-        run: |
-           docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
-
-
-
-# CD job
-  deploy:
-      needs: CI  # This ensures that the deployment process only runs when the Docker image has been successfully built and pushed to Amazon ECR
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v2
-
-
- # Build trust between GitHub and AWS using OIDC connector
-        - name: configure aws credentials
-          uses: aws-actions/configure-aws-credentials@v3
-          with:
-             role-to-assume: ${{ secrets.AWS_IAM_ARN }}
-             role-session-name: samplesession
-             aws-region: ${{ secrets.AWS_REGION }}
+#   # Push Docker image to Amazon ECR
+#       - name: push docker imagee
+#         run: |
+#            docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
 
 
 
-  # Deploy to AWS Lambda using GitHub Action
-        - name: Deploy to AWS Lambda
-          uses: appleboy/lambda-action@master
-          with:
-            function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-            zip_file: lambda-function.zip
-            aws_region: ${{ secrets.AWS_REGION }}
+# # CD job
+#   deploy:
+#       needs: CI  # This ensures that the deployment process only runs when the Docker image has been successfully built and pushed to Amazon ECR
+#       runs-on: ubuntu-latest
+#       steps:
+#         - name: Checkout Repository
+#           uses: actions/checkout@v2
+
+
+#  # Build trust between GitHub and AWS using OIDC connector
+#         - name: configure aws credentials
+#           uses: aws-actions/configure-aws-credentials@v3
+#           with:
+#              role-to-assume: ${{ secrets.AWS_IAM_ARN }}
+#              role-session-name: samplesession
+#              aws-region: ${{ secrets.AWS_REGION }}
+
+
+
+#   # Deploy to AWS Lambda using GitHub Action
+#         - name: Deploy to AWS Lambda
+#           uses: appleboy/lambda-action@master
+#           with:
+#             function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+#             zip_file: lambda-function.zip
+#             aws_region: ${{ secrets.AWS_REGION }}
 
            
 # # Update the task definition with the new image URI

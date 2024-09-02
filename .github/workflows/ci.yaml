@@ -22,7 +22,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'  # Adjust version as needed
+          java-version: '11'  # Adjust version as needeed
 
       # Cache Maven dependencies
       - name: Cache Maven packages

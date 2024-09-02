@@ -136,48 +136,23 @@ jobs:
            docker push ${{ secrets.AWS_ACCOUNT_ID}}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPO_NAME }}:${{ github.sha }}
 
 
-
-# CD job
-  deploy:
-      needs: CI  # This ensures that the deployment process only runs when the Docker image has been successfully built and pushed to Amazon ECR
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v2
-
-   # Verify the current working directory
-        - name: Print working directory
-          run: pwd
-
-    # List files in the current working directory
-        - name: List files in current directory
-          run: ls -lah
-
-    # Ensure we are in the correct directory
-        - name: Change to workspace directory (if needed)
-          run: cd /home/runner/work/Winepark-Java/Winepark-Java || exit 1
-
-    # Verify the lambda-function.zip file exists
-        - name: Verify ZIP file exists
-          run: ls -lah lambda-function.zip
-          
- # Build trust between GitHub and AWS using OIDC connector
-        - name: configure aws credentials
-          uses: aws-actions/configure-aws-credentials@v3
-          with:
-             role-to-assume: ${{ secrets.AWS_IAM_ARN }}
-             role-session-name: samplesession
-             aws-region: ${{ secrets.AWS_REGION }}
+# Build trust between GitHub and AWS using OIDC connector
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+           role-to-assume: ${{ secrets.AWS_IAM_ARN }}
+           role-session-name: samplesession
+           aws-region: ${{ secrets.AWS_REGION }}
 
 
 
   # Deploy to AWS Lambda using GitHub Action
-        - name: Deploy to AWS Lambda
-          uses: appleboy/lambda-action@master
-          with:
-            function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
-            zip_file: /home/runner/work/Winepark-Java/Winepark-Java/lambda-function.zip
-            aws_region: ${{ secrets.AWS_REGION }}
+      - name: Deploy to AWS Lambda
+        uses: appleboy/lambda-action@master
+        with:
+          function_name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+          zip_file: /home/runner/work/Winepark-Java/Winepark-Java/lambda-function.zip
+          aws_region: ${{ secrets.AWS_REGION }}
 
            
 # # Update the task definition with the new image URI

@@ -50,22 +50,29 @@ jobs:
           path: target/site/jacoco
 
 
+     # Package the application for Lambda (if using a .zip file)
+      - name: Package application
+        run: |
+          zip -r9 lambda-function.zip .
+
+
+
       - name: Set up JFrog CLI
         uses: jfrog/setup-jfrog-cli@v2
         with:
           version: 2.14.0  # Specify the version of JFrog CLI you want to use
 
-      - name: Configure JFrog CLI
-        run: |
-          jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
-        env:
-          JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
-          JFROG_USER: ${{ secrets.JFROG_USER }}
-          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
+      # - name: Configure JFrog CLI
+      #   run: |
+      #     jfrog config add artifactory --url "$JFROG_ARTIFACTORY_URL" --user "$JFROG_USER" --password "$JFROG_PASSWORD" --interactive=false
+      #   env:
+      #     JFROG_ARTIFACTORY_URL: ${{ secrets.JFROG_ARTIFACTORY_URL }}
+      #     JFROG_USER: ${{ secrets.JFROG_USER }}
+      #     JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD }}
 
-      - name: Upload Artifact to JFrog Artifactory
-        run: |
-          jfrog rt upload "target/*.jar" "${{ secrets.JFROG_REPO_NAME }}/$(date +%Y%m%d%H%M%S)/"
+      # - name: Upload Artifact to JFrog Artifactory
+      #   run: |
+      #     jfrog rt upload "target/*.jar" "${{ secrets.JFROG_REPO_NAME }}/$(date +%Y%m%d%H%M%S)/"
      
      # Build trust between GitHub and AWS using OIDC connector
       - name: configure aws credentials
@@ -139,6 +146,19 @@ jobs:
              role-session-name: samplesession
              aws-region: ${{ secrets.AWS_REGION }}
 
+
+
+  # Deploy to AWS Lambda using GitHub Action
+        - name: Deploy to AWS Lambda
+          uses: aws-actions/aws-lambda-deploy@v1
+          with:
+            function-name: ${{ secrets.LAMBDA_FUNCTION_NAME }}
+            zip-file: lambda-function.zip
+            role: ${{ secrets.AWS_IAM_ARN1 }}
+            handler: example.Hello::handleRequest # Update this to your actual handler
+            runtime: java11  # Set to the appropriate runtime (java11, python3.8, etc.)
+            region: ${{ secrets.AWS_REGION }}
+
            
 # # Update the task definition with the new image URI
 #       - name: Update ECS task definition with new image
@@ -151,11 +171,14 @@ jobs:
 #            mv new-task-definition.json task-definition.json
 
 
- # Deploy to ECS
-        - name: Deploy to ECS
-          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-          with:
-            task-definition: task-definition.json
-            service: service-winepark
-            cluster: Cluster-Winepark
-            wait-for-service-stability: true
+ # # Deploy to ECS
+ #        - name: Deploy to ECS
+ #          uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+ #          with:
+ #            task-definition: task-definition.json
+ #            service: service-winepark
+ #            cluster: Cluster-Winepark
+ #            wait-for-service-stability: true
+
+
+ 

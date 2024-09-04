@@ -57,7 +57,8 @@
 		<dependency>
 		        <groupId>com.amazonaws</groupId>
 		        <artifactId>aws-lambda-java-core</artifactId>
-		        <version>1.2.1</version> <!-- Check for the latest version -->
+		        <version>1.2.2</version>
+                        <scope>compile</scope> 
 	        </dependency>
                 <dependency>
 			<groupId>com.amazonaws</groupId>
